@@ -1,0 +1,218 @@
+{
+  "uid": "bun-elysia-overview",
+  "title": "Bun + Elysia Service - Overview",
+  "tags": ["bun", "elysia", "prometheus"],
+  "timezone": "browser",
+  "schemaVersion": 16,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "id": 1,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "type": "graph",
+      "title": "Request Rate (req/s)",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(http_requests_total[5m])",
+          "legendFormat": "{{method}} {{route}} {{status}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {"format": "reqps", "label": "Requests/s", "min": 0, "show": true},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "id": 2,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "type": "graph",
+      "title": "Average Request Duration (s)",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m])",
+          "legendFormat": "{{method}} {{route}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {"format": "s", "label": "Duration (s)", "min": 0, "show": true},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "id": 3,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "type": "graph",
+      "title": "95th Percentile Request Duration (s)",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, route))",
+          "legendFormat": "{{route}} (p95)",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {"format": "s", "label": "Latency (p95)", "min": 0, "show": true},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "id": 4,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "type": "graph",
+      "title": "HTTP Status Codes",
+      "datasource": "Prometheus",
+      "targets": [
+        {"expr": "rate(http_requests_total{status=~\"2..\"}[5m])", "legendFormat": "2xx Success", "refId": "A"},
+        {"expr": "rate(http_requests_total{status=~\"4..\"}[5m])", "legendFormat": "4xx Client Error", "refId": "B"},
+        {"expr": "rate(http_requests_total{status=~\"5..\"}[5m])", "legendFormat": "5xx Server Error", "refId": "C"}
+      ],
+      "yaxes": [
+        {"format": "reqps", "label": "Requests/s", "min": 0, "show": true},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "id": 5,
+      "gridPos": {"h": 6, "w": 6, "x": 0, "y": 16},
+      "type": "stat",
+      "title": "CPU Usage (5m avg)",
+      "datasource": "Prometheus",
+      "targets": [
+        {"expr": "rate(process_cpu_seconds_total[5m]) * 100", "refId": "A"}
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": 0},
+              {"color": "yellow", "value": 70},
+              {"color": "red", "value": 90}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "gridPos": {"h": 6, "w": 6, "x": 6, "y": 16},
+      "type": "stat",
+      "title": "Memory Usage (MB)",
+      "datasource": "Prometheus",
+      "targets": [
+        {"expr": "process_resident_memory_bytes / 1024 / 1024", "refId": "A"}
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "mbytes",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": 0},
+              {"color": "yellow", "value": 400},
+              {"color": "red", "value": 600}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "gridPos": {"h": 6, "w": 6, "x": 12, "y": 16},
+      "type": "stat",
+      "title": "Active Connections",
+      "datasource": "Prometheus",
+      "targets": [
+        {"expr": "bun_active_connections", "refId": "A"}
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": 0},
+              {"color": "yellow", "value": 80},
+              {"color": "red", "value": 100}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "gridPos": {"h": 6, "w": 6, "x": 18, "y": 16},
+      "type": "stat",
+      "title": "Service Health",
+      "datasource": "Prometheus",
+      "targets": [
+        {"expr": "up{job=\"bun-server\"}", "refId": "A"}
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"color": "red", "value": 0}, {"color": "green", "value": 1}]
+          }
+        }
+      }
+    },
+    {
+      "id": 9,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 22},
+      "type": "graph",
+      "title": "Error Rate (%)",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "(sum(rate(http_requests_total{status=~\"4..|5..\"}[5m])) / sum(rate(http_requests_total[5m]))) * 100",
+          "legendFormat": "Error %",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {"format": "percent", "label": "Error %", "min": 0, "max": 100, "show": true},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "id": 10,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 22},
+      "type": "table",
+      "title": "Firing & Pending Alerts",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "ALERTS{alertstate=~\"firing|pending\", job=\"bun-server\"}",
+          "format": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {"showHeader": true},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"displayMode": "color-background"},
+          "mappings": [
+            {"type": "value", "options": {"firing": {"text": "🔥 Firing", "color": "red"}}},
+            {"type": "value", "options": {"pending": {"text": "⏳ Pending", "color": "yellow"}}},
+            {"type": "value", "options": {"inactive": {"text": "✅ OK", "color": "green"}}}
+          ]
+        }
+      }
+    }
+  ],
+  "time": {"from": "now-15m", "to": "now"},
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h"]
+  }
+}

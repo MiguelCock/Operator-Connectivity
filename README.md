@@ -7,6 +7,14 @@ bun run dev
 ```
 
 ```bash
+docker build -t bun-server .
+docker run -d `
+  --name bun-server `
+  -p 3000:3000 `
+  bun-server
+```
+
+```bash
 docker run -d \
   --name prometheus \
   -p 9090:9090 \

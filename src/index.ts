@@ -42,6 +42,7 @@ const app = new Elysia()
       headers: { "Content-Type": register.contentType },
     });
   })
+  .get("/health", async () => "healthy")
   .listen(3000);
 
 export type App = typeof app;
