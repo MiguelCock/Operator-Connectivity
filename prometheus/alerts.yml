@@ -1,0 +1,117 @@
+groups:
+  # ===============================
+  # HTTP ALERTS
+  # ===============================
+  - name: http_alerts
+    interval: 30s
+    rules:
+      # High HTTP error rate (4xx or 5xx)
+      - alert: HighHttpErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"4..|5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+          ) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High HTTP error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # Critical 5xx error rate
+      - alert: CriticalServerErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+          ) > 0.10
+        for: 1m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "Critical HTTP 5xx error rate"
+          description: "Server error rate is {{ $value | humanizePercentage }} (threshold: 10%)"
+
+      # Slow requests (95th percentile latency > 1.5s)
+      - alert: SlowHttpRequests
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, route)
+          ) > 1.5
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "Slow HTTP responses detected"
+          description: "95th percentile latency is {{ $value }}s on route {{ $labels.route }} (threshold: 1.5s)"
+
+      # Service down (no metrics reported)
+      - alert: ServiceDown
+        expr: up{job="bun-server"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: service
+        annotations:
+          summary: "Bun server is down"
+          description: "The Bun TypeScript service has been unreachable for over 1 minute"
+
+  # ===============================
+  # RESOURCE ALERTS
+  # ===============================
+  - name: resource_alerts
+    interval: 30s
+    rules:
+      # High memory usage (> 500 MB)
+      - alert: HighMemoryUsage
+        expr: |
+          process_resident_memory_bytes / 1024 / 1024 > 500
+        for: 5m
+        labels:
+          severity: warning
+          component: resources
+        annotations:
+          summary: "High memory usage"
+          description: "Service is using {{ $value }} MB of memory (threshold: 500 MB)"
+
+      # High CPU usage (> 80% over 5 minutes)
+      - alert: HighCpuUsage
+        expr: |
+          rate(process_cpu_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: resources
+        annotations:
+          summary: "High CPU usage"
+          description: "Average CPU usage is {{ $value | humanizePercentage }} (threshold: 80%)"
+
+      # Too many active connections (> 100)
+      - alert: HighActiveConnections
+        expr: |
+          bun_active_connections > 100
+        for: 2m
+        labels:
+          severity: warning
+          component: resources
+        annotations:
+          summary: "High number of active connections"
+          description: "Server currently handling {{ $value }} active connections (threshold: 100)"
+
+      # Service stuck (no requests in last 5m)
+      - alert: NoHttpTraffic
+        expr: |
+          rate(http_requests_total[5m]) == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "No incoming HTTP traffic"
+          description: "No HTTP requests detected for over 5 minutes — possible routing or downtime issue"

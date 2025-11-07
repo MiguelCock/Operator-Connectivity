@@ -17,8 +17,7 @@
 # local env files
 .env
 
-# vercel
-.vercel
+/prometheus
 
 **/*.trace
 **/*.zip

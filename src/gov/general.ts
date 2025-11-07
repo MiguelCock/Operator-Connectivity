@@ -1,9 +1,10 @@
-import { registerCitizen} from "./register_citizen";
-import { validateCitizen } from "./valiadte_citizen";
-import { unregisterCitizen } from "./unregister_citizen";
+//import { registerCitizen} from "./register_citizen";
+//import { validateCitizen } from "./valiadte_citizen";
+//import { unregisterCitizen } from "./unregister_citizen";
 
 export const BASE_URL = "https://govcarpeta-apis-4905ff3c005b.herokuapp.com";
 
+/*
 async function example() {
   try {
     const newCitizen = await registerCitizen({
@@ -44,5 +45,5 @@ async function example() {
     console.error("API Error:", error);
   }
 }
-
-example();
+*/
+//example();

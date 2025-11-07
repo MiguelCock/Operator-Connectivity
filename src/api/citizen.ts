@@ -7,7 +7,6 @@ import { unregisterCitizen } from "../gov/unregister_citizen";
 
 export const CitizenEndpoints = new Elysia({ prefix: '/citizen' })
   .post("/", async ({ body }) => {
-    console.log(body);
     switch (await registerCitizen(body)) {
       case 201:
         return status(201);
