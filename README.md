@@ -10,7 +10,7 @@ bun run dev
 docker build -t bun-server .
 docker run -d `
   --name bun-server `
-  -p 3000:3000 `
+  -p 8000:8000 `
   bun-server
 ```
 

@@ -7,7 +7,7 @@ import { httpRequests, httpDuration, register } from "./prometheus/logs";
 
 handler().catch(console.error);
 
-export const api = new Elysia({ prefix: "/api" })
+const api = new Elysia({ prefix: "/api/conectivity" })
   .use(openapi())
   .use(CitizenEndpoints)
   .use(OperatorsEndpoints);
@@ -43,8 +43,8 @@ const app = new Elysia()
     });
   })
   .get("/health", async () => "healthy")
-  .listen(3000);
+  .listen(8000);
 
 export type App = typeof app;
 
-console.log("🚀 Elysia server running at http://localhost:3000");
+console.log("🚀 Elysia server running at http://localhost:8000");

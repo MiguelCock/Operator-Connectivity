@@ -17,6 +17,8 @@ export const UnregisterCitizenSchema = t.Object({
   operatorName: t.String()
 });
 
+export type UnregisterCitizen = Static<typeof UnregisterCitizenSchema>;
+
 export const OperatorInfoSchema = t.Array(
   t.Object({
     OperatorId: t.String(),
@@ -26,8 +28,6 @@ export const OperatorInfoSchema = t.Array(
 );
 
 export type OperatorInfo = Static<typeof OperatorInfoSchema>;
-
-export type UnregisterCitizen = Static<typeof UnregisterCitizenSchema>;
 
 export const AuthenticateDocumentSchema = t.Object({
   idCitizen: t.Number(),
