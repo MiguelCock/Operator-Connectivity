@@ -1,7 +1,6 @@
 import client from 'prom-client'
 
 export const register = new client.Registry();
-client.collectDefaultMetrics({ register });
 
 // Custom counter
 export const httpRequests = new client.Counter({
@@ -16,3 +15,7 @@ export const httpDuration = new client.Histogram({
   labelNames: ["route", "method", "status"],
   buckets: [0.05, 0.1, 0.3, 0.5, 1, 1.5, 2, 3, 5],
 });
+
+register.registerMetric(httpRequests);
+register.registerMetric(httpDuration);
+client.collectDefaultMetrics({ register });
